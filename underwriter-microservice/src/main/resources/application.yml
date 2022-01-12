@@ -6,7 +6,7 @@ spring:
     name: "underwriter-microservice"
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: true
   datasource:
     username: ${DB_USERNAME}

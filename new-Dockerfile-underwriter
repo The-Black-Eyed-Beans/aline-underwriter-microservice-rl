@@ -1,0 +1,5 @@
+FROM openjdk:8u312-jre-slim-buster
+
+COPY ./underwriter-microservice/target/underwriter-microservice-0.1.0.jar .
+
+CMD ["java", "-jar", "underwriter-microservice-0.1.0.jar"]
