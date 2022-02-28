@@ -27,7 +27,7 @@ pipeline {
             stage("Test") {
 
                 steps {
-                    sh "echo 'testing...'" //maybe implement SonarQ since mvn tests don't work?
+                    sh "echo 'testing...'" //maybe implement SonarQ since mvn tests don't work
                 }
                 
             }
