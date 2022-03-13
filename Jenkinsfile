@@ -24,14 +24,6 @@ pipeline {
 
             }
 
-            stage("Test") {
-
-                steps {
-                    sh "echo 'testing...'" //maybe implement SonarQ since mvn tests don't work
-                }
-                
-            }
-
             stage("Build") {
 
                 steps {
@@ -41,6 +33,26 @@ pipeline {
                 }
 
             }
+
+            stage("Sonar Scan") {
+                steps {
+
+                    withSonarQubeEnv('SonarQube-Server') {
+                        sh 'mvn sonar:sonar -Dsonar.projectName="$REPO_NAME"'
+
+                    }
+                }
+            }
+
+            stage("Quality Gate") {
+                steps {
+
+                    timeout(time: 5, unit: 'MINUTES'){
+                        waitForQualityGate abortPipeline: true
+                    }
+
+                }
+            }  
 
 
             stage("Dockerize") {
