@@ -24,30 +24,37 @@ pipeline {
 
             }
 
-            stage("Test") {
-
-                steps {
-                    sh "echo 'testing...'" //maybe implement SonarQ since mvn tests don't work
-                }
-                
-            }
-
             stage("Build") {
-
                 steps {
-                    sh "echo 'building...'"
+                    sh "echo 'testing...'"
                     sh 'mvn clean' 
-                    sh 'mvn package -DskipTests'
+                    sh 'mvn package -Dmaven.test.failure.ignore=true'
                 }
-
             }
+
+            stage("Sonar Scan") {
+                steps {
+                    withSonarQubeEnv('SonarQube-Server') {
+                        sh 'mvn sonar:sonar -Dsonar.projectName="$REPO_NAME"'
+                    }
+                }
+            }
+
+            stage("Quality Gate") {
+                steps {
+                    timeout(time: 5, unit: 'MINUTES'){
+                        waitForQualityGate abortPipeline: true
+                    }
+
+                }
+            }    
 
 
             stage("Dockerize") {
-
                 steps {
                     sh 'echo "creating image in $(pwd)..."'
-                    sh 'docker build --file=new-Dockerfile-underwriter --tag="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:$(git rev-parse HEAD)" .'
+                    sh 'docker build --file=new-Dockerfile-underwriter --tag="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:$(git rev-parse HEAD)" \
+                    --tag="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:latest" .'
                     sh "docker image ls"
                 }
 
@@ -63,6 +70,7 @@ pipeline {
 
                         sh 'aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"'
                         sh 'docker image push "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:$(git rev-parse HEAD)"'
+                        sh 'docker image push "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:latest"'
 
                     }
 
@@ -76,6 +84,7 @@ pipeline {
 
         always {
             sh 'docker rmi "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:$(git rev-parse HEAD)"' 
+            sh 'docker rmi "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:latest"'
         }
 
     }
