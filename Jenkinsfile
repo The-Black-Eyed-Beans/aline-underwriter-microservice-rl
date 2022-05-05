@@ -10,7 +10,7 @@ pipeline {
         AWS_ACCOUNT_ID = credentials('AWS_ACCOUNT_ID')
         JFROG_USER = credentials('JFROG_USER')
         JFROG_PW = credentials('JFROG_PW')
-        JFROG_HOST = credentials('JROG_HOST')
+        JFROG_HOST = credentials('JFROG_HOST')
         AWS_REGION = "us-west-1"
         REPO_NAME = "underwriter-microservice-rl"
     }
