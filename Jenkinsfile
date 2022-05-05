@@ -80,8 +80,8 @@ pipeline {
                     }
 
                     sh 'docker login -u $JFROG_USER -p $JFROG_PW $JFROG_HOST && \
-                    docker image push "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:$(git rev-parse HEAD)"
-                    docker image push "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:latest"'
+                    docker image push "$JFROG_HOST/microservices/$REPO_NAME:$(git rev-parse HEAD)" && \
+                    docker image push "$JFROG_HOST/microservices/$REPO_NAME:latest"'
 
                 }
 
