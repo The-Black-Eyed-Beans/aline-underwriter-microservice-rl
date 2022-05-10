@@ -83,6 +83,11 @@ pipeline {
                     docker image push "$JFROG_HOST/microservices/$REPO_NAME:$(git rev-parse HEAD)" && \
                     docker image push "$JFROG_HOST/microservices/$REPO_NAME:latest"'
 
+                    dir('underwriter-microservice/target'){
+                        sh 'curl -X "PUT" -u "$JFROG_USER:$JFROG_PW" --upload-file "underwriter-microservice-0.1.0.jar" "http://$JFROG_HOST/artifactory/microservices-jar-local/underwriter-microservice-0.1.0.jar"'
+                    }
+
+
                 }
 
             }
